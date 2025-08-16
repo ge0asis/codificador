@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Usos y Actividades Económicas</title>
+    <style>
+        /* --- Estilos Generales y Diseño --- */
+        :root {
+            --primary-color: #007bff;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --header-bg: #ffffff;
+            --table-header-bg: #e9ecef;
+            --table-border-color: #dee2e6;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--table-border-color);
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        header p {
+            margin-top: 5px;
+            color: #6c757d;
+        }
+
+        main {
+            margin-top: 25px;
+        }
+
+        .filters-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .filter-group {
+            flex: 1 1 250px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .filter-group input[type="search"],
+        .filter-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--table-border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .filter-group input[type="search"]:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        #results-info {
+            margin-bottom: 15px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background-color: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--table-border-color);
+        }
+
+        thead th {
+            background-color: var(--table-header-bg);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        tbody tr:nth-of-type(even) {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        td:first-child {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Catálogo de Usos y Actividades Económicas</h1>
+        <p>Consulta de códigos para el llenado de fichas económicas de bienes comunes e individuales.</p>
+    </header>
+
+    <div class="container">
+        <main>
+            <div class="filters-card">
+                <div class="filter-group">
+                    <label for="categoryFilter">Filtrar por Categoría:</label>
+                    <select id="categoryFilter">
+                        <option value="all">Todas las categorías</option>
+                        <option value="Uso (Individual)">Usos (Individual)</option>
+                        <option value="Uso (Bien Común)">Usos (Bien Común)</option>
+                        <option value="Actividad Económica">Actividades Económicas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="searchFilter">Buscar por Código o Descripción:</label>
+                    <input type="search" id="searchFilter" placeholder="Ej: 010101 o CASA HABITACIÓN">
+                </div>
+            </div>
+            
+            <div id="results-info"></div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Las filas de datos se insertarán aquí con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <footer>
+        <p>Página generada para consulta de catálogos. Moderna y fácil de usar.</p>
+    </footer>
+
+    <script>
+        // --- Datos Extraídos de los Archivos HTML ---
+
+        const allData = [
+            // Datos de USOS.html
+            { code: '010101', description: 'CASA HABITACIÓN', category: 'Uso (Individual)' },
+            { code: '010201', description: 'EDIFICIO', category: 'Uso (Individual)' },
+            { code: '010202', description: 'QUINTA', category: 'Uso (Individual)' },
+            { code: '010203', description: 'CALLEJÓN', category: 'Uso (Individual)' },
+            { code: '010204', description: 'CORRALÓN', category: 'Uso (Individual)' },
+            { code: '010205', description: 'SOLAR', category: 'Uso (Individual)' },
+            { code: '010206', description: 'EDIFICIO EN QUINTA', category: 'Uso (Individual)' },
+            { code: '010207', description: 'AIRES', category: 'Uso (Individual)' },
+            { code: '010208', description: 'TENDAL EN QUINTA', category: 'Uso (Individual)' },
+            { code: '010209', description: 'TENDAL EN EDIFICIO', category: 'Uso (Individual)' },
+            { code: '010210', description: 'DEPOSITO EN EDIFICIO', category: 'Uso (Individual)' },
+            { code: '010211', description: 'DEPOSITO EN CENTRO COMERCIAL', category: 'Uso (Individual)' },
+            { code: '010212', description: 'DEPOSITO EN GALERIA', category: 'Uso (Individual)' },
+            { code: '010213', description: 'PASAJE COMUN', category: 'Uso (Individual)' },
+            { code: '020101', description: 'PRODUCTOS AGROPECUARIOS Y PESQUEROS NO INDUSTRIALIZADOS.', category: 'Uso (Individual)' },
+            { code: '020102', description: 'PRODUCTOS DE SILVICULTURA, MINERALES Y METALES.', category: 'Uso (Individual)' },
+            { code: '020103', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE CONSUMO INMEDIATO.', category: 'Uso (Individual)' },
+            { code: '020104', description: 'PRODUCTOS MANUFACTURADOS DE USO DURADERO.', category: 'Uso (Individual)' },
+            { code: '020105', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE INSUMOS, REPUESTOS Y ACCESORIOS.', category: 'Uso (Individual)' },
+            { code: '020106', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE BIENES DE CAPITAL.', category: 'Uso (Individual)' },
+            { code: '020107', description: 'DE BIENES NO ESPECIFICADOS.', category: 'Uso (Individual)' },
+            { code: '020201', description: 'PRODUCTOS AGROPECUARIOS Y PESQUEROS NO INDUSTRIALIZADOS.', category: 'Uso (Individual)' },
+            { code: '020202', description: 'PRODUCTOS DE SILVICULTURA, MINERALES Y METALES.', category: 'Uso (Individual)' },
+            { code: '020203', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE CONSUMO INMEDIATO.', category: 'Uso (Individual)' },
+            { code: '020204', description: 'PRODUCTOS MANUFACTURADOS DE USO DURADERO.', category: 'Uso (Individual)' },
+            { code: '020205', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE INSUMOS, REPUESTOS Y ACCESORIOS', category: 'Uso (Individual)' },
+            { code: '020206', description: 'PRODUCTOS MANUFACTURADOS PREDOMINANTEMENTE DE BIENES DE CAPITAL.', category: 'Uso (Individual)' },
+            { code: '020207', description: 'EQUIPAMIENTO DE COMERCIO AMBULATORIO.', category: 'Uso (Individual)' },
+            { code: '020208', description: 'DE BIENES NO ESPECIFICADOS', category: 'Uso (Individual)' },
+            { code: '020301', description: 'DE PRODUCTOS AGRÍCOLAS COMESTIBLES', category: 'Uso (Individual)' },
+            { code: '020302', description: 'DE PRODUCTOS AGRÍCOLAS NO UTILIZADOS EN LA ALIMENTACIÓN HUMANA', category: 'Uso (Individual)' },
+            { code: '020303', description: 'DE ANIMALES GENERALMENTE NO UTILIZADOS EN LA ALIMENTACIÓN HUMANA', category: 'Uso (Individual)' },
+            { code: '020304', description: 'DE ANIMALES GENERALMENTE UTILIZADOS EN LA ALIMENTACIÓN HUMANA', category: 'Uso (Individual)' },
+            { code: '020305', description: 'DE PRODUCTOS EN ESTADO NATURAL', category: 'Uso (Individual)' },
+            { code: '020306', description: 'DE PRODUCTOS DERIVADOS NO INDUSTRIALIZADOS', category: 'Uso (Individual)' },
+            { code: '020307', description: 'DE PRODUCTOS ALIMENTICIOS', category: 'Uso (Individual)' },
+            { code: '020308', description: 'DE ALIMENTOS PREPARADOS PARA ANIMALES', category: 'Uso (Individual)' },
+            { code: '020309', description: 'DE BEBIDAS, TABACO Y ARTÍCULOS CONEXOS', category: 'Uso (Individual)' },
+            { code: '020310', description: 'DE PRODUCTOS FARMACÉUTICOS Y ARTÍCULOS DE TOCADOR', category: 'Uso (Individual)' },
+            { code: '020311', description: 'DE COMBUSTIBLES Y LUBRICANTES', category: 'Uso (Individual)' },
+            { code: '020312', description: 'DE TELAS, CONFECCIONES TEXTILES, DE CUERO, PIELES Y ARTÍCULOS CONEXOS.', category: 'Uso (Individual)' },
+            { code: '020313', description: 'DE ARTÍCULOS DEL HOGAR', category: 'Uso (Individual)' },
+            { code: '020314', description: 'DE LIBROS, REVISTAS Y ÚTILES DE ESCRITORIO', category: 'Uso (Individual)' },
+            { code: '020315', description: 'DE ARTÍCULOS ARTÍSTICOS Y DE LUJO', category: 'Uso (Individual)' },
+            { code: '020316', description: 'DE AUTOMÓVILES Y OTROS MEDIOS DE TRANSPORTE Y TRACCIÓN PERSONAL', category: 'Uso (Individual)' },
+            { code: '020317', description: 'DE DIVERSOS ARTÍCULOS DE USO DURADERO', category: 'Uso (Individual)' },
+            { code: '020318', description: 'DE FERTILIZANTES, PESTICIDAS Y OTROS INSUMOS PARA LA AGRICULTURA', category: 'Uso (Individual)' },
+            { code: '020319', description: 'DE INSUMOS MANUFACTURADOS PARA LA INDUSTRIA DE TRANSFORMACIÓN', category: 'Uso (Individual)' },
+            { code: '020320', description: 'DE INSUMOS MANUFACTURADOS, USADOS PREFERENTEMENTE PARA LA CONSTRUCCIÓN', category: 'Uso (Individual)' },
+            { code: '020321', description: 'DE REPUESTOS Y ACCESORIOS', category: 'Uso (Individual)' },
+            { code: '020322', description: 'DE MAQUINARIAS, HERRAMIENTAS, IMPLEMENTOS Y EQUIPOS', category: 'Uso (Individual)' },
+            { code: '020323', description: 'DE APARATOS DE MEDICIÓN, PRECISIÓN, PROCESAMIENTO Y DE FINES DIVERSOS', category: 'Uso (Individual)' },
+            { code: '020324', description: 'DE VEHÍCULOS, EXCEPTO LOS DEL CÓDIGO 020316', category: 'Uso (Individual)' },
+            { code: '020325', description: 'DE PRODUCTOS DE DIVERSAS RAMAS DEL MISMO RUBRO', category: 'Uso (Individual)' },
+            { code: '020326', description: 'TIENDA MÚLTIPLE DE DIFERENTE RUBRO', category: 'Uso (Individual)' },
+            { code: '020327', description: 'GRIFOS Y SIMILARES', category: 'Uso (Individual)' },
+            { code: '020401', description: 'DE ESTUDIOS Y PROYECTOS', category: 'Uso (Individual)' },
+            { code: '020402', description: 'DE PROFESIÓN MÉDICA', category: 'Uso (Individual)' },
+            { code: '020403', description: 'ESTUDIOS JURÍDICOS', category: 'Uso (Individual)' },
+            { code: '020404', description: 'ASESORES Y CONSULTORES', category: 'Uso (Individual)' },
+            { code: '020405', description: 'DE ENFERMERÍA', category: 'Uso (Individual)' },
+            { code: '020406', description: 'DE CORRETAJE Y AFINES', category: 'Uso (Individual)' },
+            { code: '020407', description: 'DE CONSTRUCCIÓN.', category: 'Uso (Individual)' },
+            { code: '020408', description: 'DE BIENES Y EXPORTACIÓN / IMPORTACIÓN.', category: 'Uso (Individual)' },
+            { code: '020409', description: 'ADMINISTRATIVA', category: 'Uso (Individual)' },
+            { code: '020501', description: 'DE ALIMENTACIÓN Y BEBIDAS (RESTAURANTE, BAR, FUENTE DE SODA, ETC).', category: 'Uso (Individual)' },
+            { code: '020502', description: 'DE VESTIMENTA (SASTRERÍA, COSTURERA, ALQUILER DE DISFRACES, ETC.).', category: 'Uso (Individual)' },
+            { code: '020503', description: 'DE VIVIENDA Y ALOJAMIENTO (HOTEL, MOTEL, HOSTAL, ETC).', category: 'Uso (Individual)' },
+            { code: '020504', description: 'DE HIGIENE Y ESTÉTICA PERSONAL (PELUQUERÍA, SALÓN DE BELLEZA, ETC).', category: 'Uso (Individual)' },
+            { code: '020505', description: 'DE MANTENIMIENTO Y LIMPIEZA DE MUEBLES.', category: 'Uso (Individual)' },
+            { code: '020506', description: 'TÉCNICOS ESPECIALIZADOS.', category: 'Uso (Individual)' },
+            { code: '020507', description: 'DE MECÁNICA AUTOMOTRIZ.', category: 'Uso (Individual)' },
+            { code: '020508', description: 'DE MECÁNICA EN GENERAL Y ELECTRICIDAD.', category: 'Uso (Individual)' },
+            { code: '020509', description: 'PARA APARATOS Y MUEBLES PREFERENTEMENTE DE USO DOMÉSTICO.', category: 'Uso (Individual)' },
+            { code: '020510', description: 'DE MECÁNICA FINA.', category: 'Uso (Individual)' },
+            { code: '020511', description: 'PRESTADOS A LAS EMPRESAS.', category: 'Uso (Individual)' },
+            { code: '020512', description: 'ALQUILER Y ARRENDAMIENTO DE MAQUINARIA Y EQUIPO.', category: 'Uso (Individual)' },
+            { code: '020513', description: 'DE SANEAMIENTO Y SIMILARES.', category: 'Uso (Individual)' },
+            { code: '020514', description: 'DE VETERINARIA.', category: 'Uso (Individual)' },
+            { code: '020515', description: 'AGENCIAS DE TURISMO, VIAJES Y SIMILARES.', category: 'Uso (Individual)' },
+            { code: '020516', description: 'DE CABALLERIZA.', category: 'Uso (Individual)' },
+            { code: '020517', description: 'DE ESPARCIMIENTO NO ESPECIFICADO.', category: 'Uso (Individual)' },
+            { code: '020518', description: 'SERVICIOS DE SEGURIDAD CORPORATIVA', category: 'Uso (Individual)' },
+            { code: '020519', description: 'HOTELES, HOSTALES Y AFINES', category: 'Uso (Individual)' },
+            { code: '020520', description: 'SERVICIO EN GENERAL', category: 'Uso (Individual)' },
+            { code: '020521', description: 'SERVICIOS POSTALES', category: 'Uso (Individual)' },
+            { code: '020522', description: 'LABORATORIOS QUIMICOS FARMACEUTICOS', category: 'Uso (Individual)' },
+            { code: '030101', description: 'AGRICULTURA, CAZA, SILVICULTURA Y PESCA.', category: 'Uso (Individual)' },
+            { code: '030102', description: 'EXPLOTACIÓN DE MINAS, CANTERAS, PETRÓLEO.', category: 'Uso (Individual)' },
+            { code: '030201', description: 'PRODUCTOS ALIMENTICIOS, BEBIDAS Y TABACO.', category: 'Uso (Individual)' },
+            { code: '030202', description: 'TEXTILES, PRENDAS DE VESTIR, INDUSTRIA DE CUERO.', category: 'Uso (Individual)' },
+            { code: '030203', description: 'INDUSTRIA DE LA MADERA Y PRODUCTOS DE LA MADERA INCLUIDOS MUEBLES.', category: 'Uso (Individual)' },
+            { code: '030204', description: 'FABRICACIÓN DEL PAPEL Y PRODUCTOS DEL PAPEL, IMPRENTA Y EDITORIALES.', category: 'Uso (Individual)' },
+            { code: '030205', description: 'FABRICACIÓN DE SUSTANCIAS Y PRODUCTOS QUÍMICOS DERIVADOS DEL PETRÓLEO, CARBÓN, CAUCHO Y PLÁSTICO.', category: 'Uso (Individual)' },
+            { code: '030206', description: 'FABRICACIÓN DE PRODUCTOS MINERALES NO METÁLICOS EXCEPTO LOS DERIVADOS DEL PETRÓLEO Y CARBÓN .', category: 'Uso (Individual)' },
+            { code: '030207', description: 'INDUSTRIAS METÁLICAS BÁSICAS.', category: 'Uso (Individual)' },
+            { code: '030208', description: 'FABRICACIÓN DE PRODUCTOS METÁLICOS, MAQUINARIAS Y EQUIPO', category: 'Uso (Individual)' },
+            { code: '030209', description: 'OTRAS INDUSTRIAS MANUFACTURERAS NO ESPECIFICADAS.', category: 'Uso (Individual)' },
+            { code: '030210', description: 'INDUSTRIA', category: 'Uso (Individual)' },
+            { code: '040101', description: 'PARQUE METROPOLITANO.', category: 'Uso (Individual)' },
+            { code: '040102', description: 'PARQUE ZONAL.', category: 'Uso (Individual)' },
+            { code: '040103', description: 'PARQUE', category: 'Uso (Individual)' },
+            { code: '040104', description: 'ESTADIO.', category: 'Uso (Individual)' },
+            { code: '040105', description: 'HIPÓDROMO.', category: 'Uso (Individual)' },
+            { code: '040106', description: 'COLISEO.', category: 'Uso (Individual)' },
+            { code: '040107', description: 'CLUB O CÍRCULO.', category: 'Uso (Individual)' },
+            { code: '040108', description: 'CENTRO DEPORTIVO.', category: 'Uso (Individual)' },
+            { code: '040109', description: 'PISTA DE PATINAJE.', category: 'Uso (Individual)' },
+            { code: '040110', description: 'CANCHA DE BOWLING.', category: 'Uso (Individual)' },
+            { code: '040111', description: 'MESA DE BILLAR Y BILLAS.', category: 'Uso (Individual)' },
+            { code: '040112', description: 'CANCHA DE BOCHAS', category: 'Uso (Individual)' },
+            { code: '040113', description: 'GIMNASIO, AERÓBICOS Y SIMILARES', category: 'Uso (Individual)' },
+            { code: '040114', description: 'GALERÍA DE TIRO.', category: 'Uso (Individual)' },
+            { code: '040115', description: 'PISCINA DE NATACIÓN.', category: 'Uso (Individual)' },
+            { code: '040116', description: 'ACADEMIA DE DANZA, BAILE, DANZAS FOLKLORICAS.', category: 'Uso (Individual)' },
+            { code: '040117', description: 'ACADEMIA DE DEPORTES, FÚTBOL, BÁSKET, NATACIÓN Y OTROS', category: 'Uso (Individual)' },
+            { code: '040118', description: 'ACADEMIA DE ARTES MARCIALES', category: 'Uso (Individual)' },
+            { code: '040119', description: 'PLAZOLETA', category: 'Uso (Individual)' },
+            { code: '040120', description: 'CANCHA DEPORTIVA', category: 'Uso (Individual)' },
+            { code: '040150', description: 'BERMAS', category: 'Uso (Individual)' },
+            { code: '040201', description: 'MUSEO', category: 'Uso (Individual)' },
+            { code: '040202', description: 'CENTRO DE CONVENCIONES.', category: 'Uso (Individual)' },
+            { code: '040203', description: 'SALA DE EXPOSICIÓN, FERIA, GALERÍA DE ARTE.', category: 'Uso (Individual)' },
+            { code: '040204', description: 'MONUMENTO ARQUEOLÓGICO PREHISPÁNICO/HISTÓRICO COLONIAL-REPUBLICANO.', category: 'Uso (Individual)' },
+            { code: '040205', description: 'TEATRO.', category: 'Uso (Individual)' },
+            { code: '040206', description: 'JARDÍN BOTÁNICO.', category: 'Uso (Individual)' },
+            { code: '040207', description: 'ZOOLÓGICO.', category: 'Uso (Individual)' },
+            { code: '040208', description: 'CINE.', category: 'Uso (Individual)' },
+            { code: '040209', description: 'BIBLIOTECA.', category: 'Uso (Individual)' },
+            { code: '040210', description: 'OBSERVATORIO, PLANETARIO.', category: 'Uso (Individual)' },
+            { code: '040301', description: 'DISCOTECA.', category: 'Uso (Individual)' },
+            { code: '040302', description: 'PINBALL O SIMILAR.', category: 'Uso (Individual)' },
+            { code: '040303', description: 'BINGO, CASINO DE JUEGO.', category: 'Uso (Individual)' },
+            { code: '040304', description: 'PEÑA.', category: 'Uso (Individual)' },
+            { code: '040305', description: 'CAFÉ TEATRO, CABARET, CENTRO NOCTURNO, BOITE.', category: 'Uso (Individual)' },
+            { code: '040306', description: 'SALÓN DE BAILE.', category: 'Uso (Individual)' },
+            { code: '040307', description: 'CENTRO DE APUESTA', category: 'Uso (Individual)' },
+            { code: '040308', description: 'CASA DE CITA Y PROSTÍBULO', category: 'Uso (Individual)' },
+            { code: '040309', description: 'CIRCO', category: 'Uso (Individual)' },
+            { code: '040310', description: 'KARAOKE, PUB.', category: 'Uso (Individual)' },
+            { code: '050101', description: 'EDUCACIÓN INICIAL ESTATAL', category: 'Uso (Individual)' },
+            { code: '050102', description: 'EDUCACIÓN INICIAL PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050103', description: 'EDUCACIÓN PRIMARIA ESTATAL', category: 'Uso (Individual)' },
+            { code: '050104', description: 'EDUCACIÓN PRIMARIA PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050105', description: 'EDUCACIÓN SECUNDARIA ESTATAL', category: 'Uso (Individual)' },
+            { code: '050106', description: 'EDUCACIÓN SECUNDARIA PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050107', description: 'EDUCACIÓN PRIMARIA-SECUNDARIA ESTATAL', category: 'Uso (Individual)' },
+            { code: '050108', description: 'EDUCACIÓN PRIMARIA-SECUNDARIA PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050109', description: 'EDUCACIÓN PRE-UNIVERSITARIA (ACADEMIA)', category: 'Uso (Individual)' },
+            { code: '050110', description: 'EDUCACIÓN SUPERIOR UNIVERSITARIA ESTATAL', category: 'Uso (Individual)' },
+            { code: '050111', description: 'EDUCACIÓN SUPERIOR UNIVERSITARIA PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050112', description: 'EDUCACIÓN SUPERIOR INSTITUTO ESTATAL.', category: 'Uso (Individual)' },
+            { code: '050113', description: 'EDUCACIÓN SUPERIOR INSTITUTO PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050114', description: 'CALIFICACIÓN PROFESIONAL ESPECIALIZADA', category: 'Uso (Individual)' },
+            { code: '050115', description: 'EDUCACIÓN ESPECIAL', category: 'Uso (Individual)' },
+            { code: '050116', description: 'OTRO NO ESPECIFICADO', category: 'Uso (Individual)' },
+            { code: '050117', description: 'EDUCACIONAL', category: 'Uso (Individual)' },
+            { code: '050118', description: 'CENTROS EDUCATIVOS ESTATALES', category: 'Uso (Individual)' },
+            { code: '050119', description: 'CENTROS EDUCATIVOS PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050120', description: 'UNIVERSIDADES', category: 'Uso (Individual)' },
+            { code: '050121', description: 'INSTITUTOS SUPERIORES Y ACADEMIAS', category: 'Uso (Individual)' },
+            { code: '050201', description: 'HOSPITAL ESPECIALIZADO', category: 'Uso (Individual)' },
+            { code: '050202', description: 'HOSPITAL GENERAL', category: 'Uso (Individual)' },
+            { code: '050203', description: 'HOSPITAL GENERAL DE LAS FUERZAS ARMADAS Y POLICIALES', category: 'Uso (Individual)' },
+            { code: '050204', description: 'CLÍNICA ESPECIALIZADA', category: 'Uso (Individual)' },
+            { code: '050205', description: 'CLÍNICA', category: 'Uso (Individual)' },
+            { code: '050206', description: 'CENTRO DE SALUD TIPO C, POLICLÍNICO, CENTRO MÉDICO PARTICULAR', category: 'Uso (Individual)' },
+            { code: '050207', description: 'PUESTO SANITARIO', category: 'Uso (Individual)' },
+            { code: '050208', description: 'CENTRO ESPECIALIZADO DE ASISTENCIA SOCIAL', category: 'Uso (Individual)' },
+            { code: '050209', description: 'CEMENTERIO', category: 'Uso (Individual)' },
+            { code: '050210', description: 'FUNERARIA', category: 'Uso (Individual)' },
+            { code: '050211', description: 'CLINICAS MEDICAS, POLICLINICOS', category: 'Uso (Individual)' },
+            { code: '050301', description: 'TERMINAL MARÍTIMO', category: 'Uso (Individual)' },
+            { code: '050302', description: 'TERMINAL AÉREO', category: 'Uso (Individual)' },
+            { code: '050303', description: 'TERMINAL TERRESTRE', category: 'Uso (Individual)' },
+            { code: '050304', description: 'TERMINAL FERROVIARIO', category: 'Uso (Individual)' },
+            { code: '050305', description: 'DEPÓSITO Y ALMACENAMIENTO', category: 'Uso (Individual)' },
+            { code: '050306', description: 'PLAYA, EDIFICIO DE ESTACIONAMIENTO', category: 'Uso (Individual)' },
+            { code: '050307', description: 'SERVICIO RELACIONADO AL TRANSPORTE FERROVIARIO', category: 'Uso (Individual)' },
+            { code: '050308', description: 'SERVICIO RELACIONADO AL TRANSPORTE TERRESTRE INTERPROVINCIAL', category: 'Uso (Individual)' },
+            { code: '050309', description: 'SERVICIO RELACIONADO AL TRANSPORTE DE CARGA POR CARRETERA', category: 'Uso (Individual)' },
+            { code: '050310', description: 'OTROS SERVICIOS DE TRANSPORTE TERRESTRE DE PASAJEROS EN LA CIUDAD', category: 'Uso (Individual)' },
+            { code: '050311', description: 'SERVICIO RELACIONADO AL TRANSPORTE AÉREO', category: 'Uso (Individual)' },
+            { code: '050312', description: 'SERVICIO RELACIONADO AL TRANSPORTE POR AGUA', category: 'Uso (Individual)' },
+            { code: '050313', description: 'ESTACIONAMIENTO', category: 'Uso (Individual)' },
+            { code: '050314', description: 'GRANDES ALMACENES', category: 'Uso (Individual)' },
+            { code: '050401', description: 'CORREO', category: 'Uso (Individual)' },
+            { code: '050402', description: 'TELÉFONO', category: 'Uso (Individual)' },
+            { code: '050403', description: 'TELEVISIÓN', category: 'Uso (Individual)' },
+            { code: '050404', description: 'TELÉGRAFO', category: 'Uso (Individual)' },
+            { code: '050405', description: 'RADIO', category: 'Uso (Individual)' },
+            { code: '050406', description: 'CABLES', category: 'Uso (Individual)' },
+            { code: '050407', description: 'VÍA SATÉLITE', category: 'Uso (Individual)' },
+            { code: '050408', description: 'TÉLEX', category: 'Uso (Individual)' },
+            { code: '050409', description: 'TELETIPO', category: 'Uso (Individual)' },
+            { code: '050410', description: 'TELEFOTO', category: 'Uso (Individual)' },
+            { code: '050411', description: 'PRENSA', category: 'Uso (Individual)' },
+            { code: '050412', description: 'AGENCIA DE PRENSA', category: 'Uso (Individual)' },
+            { code: '050413', description: 'AGENCIA NOTICIOSA', category: 'Uso (Individual)' },
+            { code: '050414', description: 'MENSAJERÍA', category: 'Uso (Individual)' },
+            { code: '050415', description: 'INTERNET', category: 'Uso (Individual)' },
+            { code: '050416', description: 'OTRO NO ESPECIFICADO', category: 'Uso (Individual)' },
+            { code: '050501', description: 'LUZ Y FUERZA ELÉCTRICA', category: 'Uso (Individual)' },
+            { code: '050502', description: 'PRODUCCIÓN Y DISTRIBUCIÓN DE GAS', category: 'Uso (Individual)' },
+            { code: '050503', description: 'SUMINISTRO DE VAPOR', category: 'Uso (Individual)' },
+            { code: '050504', description: 'CENTRO DE CAPTACIÓN, PURIFICACIÓN Y DISTRIBUCIÓN DE AGUA', category: 'Uso (Individual)' },
+            { code: '050505', description: 'CENTRAL DE GENERACIÓN ELÉCTRICA', category: 'Uso (Individual)' },
+            { code: '050506', description: 'SUB ESTACIÓN DE TELECOMUNICACIONES', category: 'Uso (Individual)' },
+            { code: '050601', description: 'MERCADOS', category: 'Uso (Individual)' },
+            { code: '050602', description: 'MERCADO AMBULATORIO', category: 'Uso (Individual)' },
+            { code: '050603', description: 'MERCADOS MAYORISTAS', category: 'Uso (Individual)' },
+            { code: '050604', description: 'MERCADOS MINORISTAS', category: 'Uso (Individual)' },
+            { code: '050605', description: 'MERCADOS TEMPORALES EN VÍA PUBLICA', category: 'Uso (Individual)' },
+            { code: '060101', description: 'EDIFICACIÓN UTILIZADA POR EL GOBIERNO CENTRAL', category: 'Uso (Individual)' },
+            { code: '060102', description: 'EDIFICACIÓN UTILIZADA POR EL GOBIERNO REGIONAL', category: 'Uso (Individual)' },
+            { code: '060103', description: 'EDIFICACIÓN UTILIZADA POR EL GOBIERNO LOCAL', category: 'Uso (Individual)' },
+            { code: '060104', description: 'EDIFICACIÓN UTILIZADA POR EL GOBIERNO NO ESPECIFICADO', category: 'Uso (Individual)' },
+            { code: '060105', description: 'GOBIERNO CENTRAL,REGIONAL,INSTI. PU', category: 'Uso (Individual)' },
+            { code: '060201', description: 'PREFECTURA, COMANDANCIA, COMISARÍA ( G.C.) COMISARÍA', category: 'Uso (Individual)' },
+            { code: '060202', description: 'ESTACIÓN DE LA POLICÍA NACIONAL', category: 'Uso (Individual)' },
+            { code: '060203', description: 'CENTRO DE INSTRUCCIÓN DE LAS FUERZAS ARMADAS', category: 'Uso (Individual)' },
+            { code: '060204', description: 'CENTRO DE INSTRUCCIÓN DE LAS FUERZAS POLICIALES.', category: 'Uso (Individual)' },
+            { code: '060205', description: 'CUARTEL DE LA GUARDIA REPUBLICANA POLICÍA NACIONAL', category: 'Uso (Individual)' },
+            { code: '060206', description: 'CUARTEL DEL EJÉRCITO', category: 'Uso (Individual)' },
+            { code: '060207', description: 'CUARTEL DE LA FUERZA AÉREA', category: 'Uso (Individual)' },
+            { code: '060208', description: 'CUARTEL DE LA MARINA O BASE NAVAL', category: 'Uso (Individual)' },
+            { code: '060209', description: 'CENTRO DE REHABILITACIÓN Y ASISTENCIA SOCIAL (C.R.A.S.- CÁRCELES).', category: 'Uso (Individual)' },
+            { code: '060301', description: 'FINANCIERA', category: 'Uso (Individual)' },
+            { code: '060302', description: 'BOLSA DE VALORES', category: 'Uso (Individual)' },
+            { code: '060303', description: 'AGENCIA CAMBIARÍA', category: 'Uso (Individual)' },
+            { code: '060304', description: 'COMPAÑÍA DE PATENTES Y LICENCIAS', category: 'Uso (Individual)' },
+            { code: '060305', description: 'OTRO ESTABLECIMIENTO FINANCIERO NO ESPECIFICADO', category: 'Uso (Individual)' },
+            { code: '060306', description: 'BANCO DE LA ENTIDAD PÚBLICA', category: 'Uso (Individual)' },
+            { code: '060307', description: 'BANCO COMERCIAL', category: 'Uso (Individual)' },
+            { code: '060308', description: 'AGENCIA BANCARIA', category: 'Uso (Individual)' },
+            { code: '060309', description: 'CAJA DE AHORRO', category: 'Uso (Individual)' },
+            { code: '060310', description: 'MUTUAL', category: 'Uso (Individual)' },
+            { code: '060311', description: 'COOPERATIVA DE CRÉDITO', category: 'Uso (Individual)' },
+            { code: '060312', description: 'CASA DE PRÉSTAMO', category: 'Uso (Individual)' },
+            { code: '060313', description: 'OTRA INSTITUCIÓN MONETARIA NO ESPECIFICADA', category: 'Uso (Individual)' },
+            { code: '060314', description: 'SEGUROS', category: 'Uso (Individual)' },
+            { code: '060315', description: 'OTRO SERVICIO DE SEGUROS NO ESPECIFICADO', category: 'Uso (Individual)' },
+            { code: '060316', description: 'CAJERO AUTOMÁTICO', category: 'Uso (Individual)' },
+            { code: '060317', description: 'ADMINISTRACIÓN FONDO DE PENSIONES (AFP)', category: 'Uso (Individual)' },
+            { code: '060318', description: 'ENTIDADES FINANCIERAS BANCARIAS, AFP, SEGUROS', category: 'Uso (Individual)' },
+            { code: '060401', description: 'INSTITUTO DE INVESTIGACIÓN Y CIENTÍFICO', category: 'Uso (Individual)' },
+            { code: '060501', description: 'EMBAJADA', category: 'Uso (Individual)' },
+            { code: '060502', description: 'CONSULADO', category: 'Uso (Individual)' },
+            { code: '060503', description: 'LEGACIÓN', category: 'Uso (Individual)' },
+            { code: '060504', description: 'ORGANISMO INTERNACIONAL', category: 'Uso (Individual)' },
+            { code: '060601', description: 'CATEDRAL', category: 'Uso (Individual)' },
+            { code: '060602', description: 'PARROQUIA', category: 'Uso (Individual)' },
+            { code: '060603', description: 'CAPILLA', category: 'Uso (Individual)' },
+            { code: '060604', description: 'TEMPLO DE LA IGLESIA ADVENTISTA', category: 'Uso (Individual)' },
+            { code: '060605', description: 'TEMPLO DE LA IGLESIA ALIANZA CRISTIANA Y MISIONERA', category: 'Uso (Individual)' },
+            { code: '060606', description: 'TEMPLO DE LA IGLESIA ANGLICANA', category: 'Uso (Individual)' },
+            { code: '060607', description: 'TEMPLO DE LA IGLESIA BAUTISTA', category: 'Uso (Individual)' },
+            { code: '060608', description: 'TEMPLO DE LA IGLESIA EVANGÉLICA', category: 'Uso (Individual)' },
+            { code: '060609', description: 'TEMPLO DE LA IGLESIA DE JESUCRISTO DE LOS SANTOS DE LOS ÚLTIMOS DÍAS', category: 'Uso (Individual)' },
+            { code: '060610', description: 'CONVENTO, MONASTERIO', category: 'Uso (Individual)' },
+            { code: '060611', description: 'SALA DE REUNIÓN DEPENDIENTE DE LA ENTIDAD RELIGIOSA', category: 'Uso (Individual)' },
+            { code: '060612', description: 'TEMPLO TESTIGO DE JEHOVÁ', category: 'Uso (Individual)' },
+            { code: '060613', description: 'TEMPLO CONVENTO', category: 'Uso (Individual)' },
+            { code: '060701', description: 'HOSPICIO', category: 'Uso (Individual)' },
+            { code: '060702', description: 'ALBERGUE.', category: 'Uso (Individual)' },
+            { code: '060703', description: 'PUERICULTORIO', category: 'Uso (Individual)' },
+            { code: '060704', description: 'ASILO', category: 'Uso (Individual)' },
+            { code: '060705', description: 'COMPAÑÍA DE BOMBEROS', category: 'Uso (Individual)' },
+            { code: '060706', description: 'COMEDOR POPULAR', category: 'Uso (Individual)' },
+            { code: '060707', description: 'LOCAL COMUNAL', category: 'Uso (Individual)' },
+            { code: '060708', description: 'GUARDERÍA', category: 'Uso (Individual)' },
+            { code: '060720', description: 'CASA DEL ADULTO MAYOR', category: 'Uso (Individual)' },
+            { code: '060801', description: 'CULTURAL, EDUCACIONAL', category: 'Uso (Individual)' },
+            { code: '060802', description: 'RELIGIOSA', category: 'Uso (Individual)' },
+            { code: '060803', description: 'LABORAL', category: 'Uso (Individual)' },
+            { code: '060804', description: 'POLÍTICA', category: 'Uso (Individual)' },
+            { code: '060805', description: 'ASISTENCIA SOCIAL', category: 'Uso (Individual)' },
+            { code: '060806', description: 'COMERCIAL', category: 'Uso (Individual)' },
+            { code: '060807', description: 'PROFESIONAL', category: 'Uso (Individual)' },
+            { code: '070101', description: 'SIN CONSTRUIR', category: 'Uso (Individual)' },
+            { code: '070201', description: 'EN CONSTRUCCIÓN', category: 'Uso (Individual)' },
+            { code: '070301', description: 'CONSTRUCCIÓN PARCIAL', category: 'Uso (Individual)' },
+            { code: '070401', description: 'CON CONSTRUCCIÓN DE TERCEROS', category: 'Uso (Individual)' },
+            { code: '070402', description: 'TERRENO CONSTRUCCIÓN PARCIAL', category: 'Uso (Individual)' },
+            { code: '080101', description: 'DESOCUPADO CON CONSTRUCCIÓN', category: 'Uso (Individual)' },
+            { code: '090101', description: 'GARAGE EN CASA HABITACIÓN', category: 'Uso (Individual)' },
+            { code: '090201', description: 'GARAGE EN EDIFICIO', category: 'Uso (Individual)' },
+            { code: '090202', description: 'GARAGE EN QUINTA', category: 'Uso (Individual)' },
+            { code: '090301', description: 'GARAGE EN COMERCIO', category: 'Uso (Individual)' },
+            { code: '110101', description: 'CASA HABITACIÓN CON ACTIVIDAD ECONOMICA', category: 'Uso (Individual)' },
+            { code: '110102', description: 'VIVIENDA EN EDIFICIO CON ACITIVIDAD ECONOMICA', category: 'Uso (Individual)' },
+            { code: '110201', description: 'OTROS', category: 'Uso (Individual)' },
+            { code: '888888', description: 'SIN USO', category: 'Uso (Individual)' },
+            { code: '999999', description: 'REVISAR USOS', category: 'Uso (Individual)' },
+
+            // Datos de USOS_BC.html
+            { code: '100101', description: 'EDIFICIO', category: 'Uso (Bien Común)' },
+            { code: '100102', description: 'QUINTA', category: 'Uso (Bien Común)' },
+            { code: '100103', description: 'CALLEJON', category: 'Uso (Bien Común)' },
+            { code: '100104', description: 'CORRALON', category: 'Uso (Bien Común)' },
+            { code: '100105', description: 'SOLAR', category: 'Uso (Bien Común)' },
+            { code: '100106', description: 'CASA HABITACIÓN', category: 'Uso (Bien Común)' },
+            { code: '100201', description: 'CENTRO COMERCIAL', category: 'Uso (Bien Común)' },
+            { code: '100202', description: 'GALERIA', category: 'Uso (Bien Común)' },
+            { code: '100203', description: 'OFICINA', category: 'Uso (Bien Común)' },
+            { code: '100204', description: 'OTRO NO ESPECIFICADO', category: 'Uso (Bien Común)' },
+            { code: '100205', description: 'MERCADO', category: 'Uso (Bien Común)' },
+            { code: '100301', description: 'INDUSTRIA', category: 'Uso (Bien Común)' },
+            { code: '100401', description: 'RESIDENCIAL', category: 'Uso (Bien Común)' },
+            { code: '100402', description: 'COMERCIAL', category: 'Uso (Bien Común)' },
+            { code: '100403', description: 'INDUSTRIAL', category: 'Uso (Bien Común)' },
+            { code: '999999', description: 'REVISAR USOS', category: 'Uso (Bien Común)' },
+            
+            // Datos de ACTIVIDADES.html
+            { code: '00107', description: 'OFICINAS', category: 'Actividad Económica' },
+            { code: '11101', description: 'MATANZA DE GANADO Y PREPARACION Y CONSERVACION DE CARNE', category: 'Actividad Económica' },
+            { code: '11102', description: 'FABRICACION DE PRODUCTOS LACTEOS', category: 'Actividad Económica' },
+            { code: '11103', description: 'ENVASADOS Y CONSERVACION DE FRUTAS Y LEGUMBRES', category: 'Actividad Económica' },
+            { code: '11104', description: 'ELABORACION DE PESCADO, CRUSTACEOS Y OTROS PRODUCTOS MARINOS', category: 'Actividad Económica' },
+            { code: '11105', description: 'FABRICACION DE ACEITE Y GRASAS VEGETALES Y ANIMALES', category: 'Actividad Económica' },
+            { code: '11106', description: 'PRODUCTOS DE MOLINERIA', category: 'Actividad Económica' },
+            { code: '11107', description: 'FABRICACION DE PRODUCTOS DE PANADERIA', category: 'Actividad Económica' },
+            { code: '11108', description: 'FABRICAS Y REFINERIAS DE AZUCAR', category: 'Actividad Económica' },
+            { code: '11109', description: 'FABRICACION DE CACAO,CHOCOLATE Y ARTICULOS DE CONFITERIA', category: 'Actividad Económica' },
+            { code: '11110', description: 'ELABORACION DE PRODUCTOS ALIMENTICIOS DIVERSOS', category: 'Actividad Económica' },
+            { code: '11111', description: 'ELABORACION DE ALIMENTOS PREPARADOS PARA ANIMALES', category: 'Actividad Económica' },
+            { code: '11201', description: 'DESTILACION,RECTIFICACION Y MEZCLA DE BEBIDAS ESPIRITUOSAS', category: 'Actividad Económica' },
+            { code: '11202', description: 'INDUSTRIAS VINICOLAS', category: 'Actividad Económica' },
+            { code: '11203', description: 'BEBIDAS MALTEADAS Y MALTAS', category: 'Actividad Económica' },
+            { code: '11204', description: 'INDUSTRIAS DE BEBIDAS NO ALCOHOLICAS Y AGUAS GASEOSAS', category: 'Actividad Económica' },
+            { code: '11301', description: 'INDUSTRIA DEL TABACO', category: 'Actividad Económica' },
+            { code: '12101', description: 'HILADO,TEJIDO Y ACABADO DE TEXTILES', category: 'Actividad Económica' },
+            { code: '12102', description: 'ARTICULOS CONFECCIONADOS DE MATERIALES TEXTILES,EXCEPTO PRENDAS DE VESTIR', category: 'Actividad Económica' },
+            { code: '12103', description: 'FABRICA DE TEJIDOS DE PUNTO', category: 'Actividad Económica' },
+            { code: '12104', description: 'FABRICACION DE TAPICES Y ALFOMBRAS', category: 'Actividad Económica' },
+            { code: '12105', description: 'CORDELERIA', category: 'Actividad Económica' },
+            { code: '12106', description: 'FABRICACION DE TEXTILES N.E.P.', category: 'Actividad Económica' },
+            { code: '12201', description: 'FABRICACION DE PRENDAS DE VESTIR EXCEPTO CALZADO', category: 'Actividad Económica' },
+            { code: '12301', description: 'CURTIDURIAS Y TALLERES DE ACABADO', category: 'Actividad Económica' },
+            { code: '12302', description: 'INDUSTRIA DE LA PREPARACION Y TEÑIDO DE PIELES', category: 'Actividad Económica' },
+            { code: '12303', description: 'FABRICACION DE ARTICULOS DE CUERO Y SUCEDANEOS DE CUERO, EXCEPTO EL CALZADO Y OTRAS PRENDAS DE VEST', category: 'Actividad Económica' },
+            { code: '12401', description: 'FABRICACION DE CALZADO EXCEPTO EL DE CAUCHO VULCANIZADO O MOLDEADO DE PLASTICO', category: 'Actividad Económica' },
+            { code: '13101', description: 'ASERRADEROS,TALLERES DE ACEPILLADURAS Y OTROS TALLERES PARA TRABAJAR LA MADERA', category: 'Actividad Económica' },
+            { code: '13102', description: 'FABRICACION DE ENVASES DE MADERA Y DE CAÑA Y ARTICULOS MENUDOS DE CAÑA.', category: 'Actividad Económica' },
+            { code: '13103', description: 'FABRICACION DE PRODUCTOS DE MADERA Y CORCHO, N.E.P.', category: 'Actividad Económica' },
+            { code: '13201', description: 'FABRICACION DE MUEBLES Y ACCESORIOS, EXCEPTO LOS METALICOS', category: 'Actividad Económica' },
+            { code: '14101', description: 'FABRICACION DE PULPA DE MADERA, PAPEL Y CARBON', category: 'Actividad Económica' },
+            { code: '14102', description: 'FABRICACION DE ENVASES Y CAJAS DE PAPEL Y DE CARTON', category: 'Actividad Económica' },
+            { code: '14103', description: 'FABRICACION DE ARTICULOS DE PULPA, PAPEL Y CARTON, N.E.P.', category: 'Actividad Económica' },
+            { code: '14201', description: 'IMPRENTAS ,EDITORIALES E INDUSTRIAS CONEXAS', category: 'Actividad Económica' },
+            { code: '15101', description: 'FABRICACION DE SUSTANCIAS QUIMICAS INDUSTRIALES BASICAS EXCEPTO ABONOS', category: 'Actividad Económica' },
+            { code: '15102', description: 'FABRICACION DE ABONOS Y PLAGUICIDAS', category: 'Actividad Económica' },
+            { code: '15103', description: 'FABRICACION DE RESINAS SINTÉTICAS, MATERIAS PLASTICAS Y FIBRAS ARTIFICIALES, EXCEPTO EL VIDRIO', category: 'Actividad Económica' },
+            { code: '15201', description: 'FABRICACION DE PINTURAS,BARNICES Y LACAS', category: 'Actividad Económica' },
+            { code: '15202', description: 'FABRICACION DE PRODUCTOS FARMACÉUTICOS Y MEDICAMENTOS', category: 'Actividad Económica' },
+            { code: '15203', description: 'FABRICACION DE JABONES Y PREPARADOS DE LIMPIEZA,PERFUMES,COSMÉTICOS Y OTROS PRODUCTOS DE TOCADOR', category: 'Actividad Económica' },
+            { code: '15204', description: 'FABRICACION DE PRODUCTOS QUIMICOS', category: 'Actividad Económica' },
+            { code: '15301', description: 'REFINERIAS DE PETROLEO', category: 'Actividad Económica' },
+            { code: '15302', description: 'FABRICACION DE PRODUCTOS DIVERSOS DERIVADOS DEL PETROLEO Y DEL CARBON', category: 'Actividad Económica' },
+            { code: '15401', description: 'INDUSTRIAS DE LLANTAS Y CAMARAS', category: 'Actividad Económica' },
+            { code: '15402', description: 'FABRICACION DE PRODUCTOS DE CAUCHO', category: 'Actividad Económica' },
+            { code: '15403', description: 'FABRICACION DE PRODUCTOS PLASTICOS', category: 'Actividad Económica' },
+            { code: '16101', description: 'FABRICACION DE OBJETOS DE BARRO,LOZA Y PORCELANA', category: 'Actividad Económica' },
+            { code: '16201', description: 'FABRICACION DE VIDRIO Y PRODUCTOS DE VIDRIO', category: 'Actividad Económica' },
+            { code: '16301', description: 'FABRICACION DE OTROS PRODUCTOS DE ARCILLA PARA CONSTRUCCION', category: 'Actividad Económica' },
+            { code: '16302', description: 'FABRICACION DE CEMENTO,CAL Y YESO', category: 'Actividad Económica' },
+            { code: '16303', description: 'FABRICACION DE PRODUCTOS MINERALES NO METALICOS', category: 'Actividad Económica' },
+            { code: '17101', description: 'INDUSTRIAS BASICAS DE HIERRO Y ACERO', category: 'Actividad Económica' },
+            { code: '17201', description: 'INDUSTRIAS BASICAS DE METALES NO FERROSOS', category: 'Actividad Económica' },
+            { code: '18101', description: 'FABRICACION DE CUCHILLERIA,HERRAMIENTAS MANUALES Y ARTICULOS GENERALES DE FERRETERIA', category: 'Actividad Económica' },
+            { code: '18102', description: 'FABRICACION DE MUEBLES Y ACCESORIOS PRINCIPALES METALICOS', category: 'Actividad Económica' },
+            { code: '18103', description: 'FABRICACION DE PRODUCTOS METALICOS ESTRUCTURALES', category: 'Actividad Económica' },
+            { code: '18104', description: 'FABRICACION DE PRODUCTOS METALICOS ,N.E.P.,EXCEPTUANDO MAQUINARIAS Y EQUIPOS', category: 'Actividad Económica' },
+            { code: '18201', description: 'CONSTRUCCION DE MOTORES Y TURBINAS', category: 'Actividad Económica' },
+            { code: '18202', description: 'CONSTRUCCION DE MAQUINARIAS Y EQUIPO PARA LA AGRICULTURA', category: 'Actividad Económica' },
+            { code: '18203', description: 'CONSTRUCCION DE MAQUINARIAS PARA TRABAJAR LOS METALES Y LA MADERA', category: 'Actividad Económica' },
+            { code: '18204', description: 'CONSTRUCCION DE MAQUINARIA Y EQUIPOS ESPECIALES PARA LAS INDUSTRIAS, LA MAQUINARIA PARA TRABAJAR', category: 'Actividad Económica' },
+            { code: '18205', description: 'CONSTRUCCION DE MAQUINARIAS DE OFICINA,CALCULO Y CONTABILIDAD', category: 'Actividad Económica' },
+            { code: '18206', description: 'CONSTRUCCION DE MAQUINARIA Y EQUIPO N.E.P.,EXCEPTUANDO LA MAQUINARIA ELÉCTRICA', category: 'Actividad Económica' },
+            { code: '18301', description: 'CONSTRUCCION DE MAQUINAS Y APARATOS INDUSTRIALES ELÉCTRICOS', category: 'Actividad Económica' },
+            { code: '18302', description: 'CONSTRUCCION DE EQUIPOS Y APARATOS DE RADIO, DE TELEVISION Y DE COMUNICACIONES', category: 'Actividad Económica' },
+            { code: '18303', description: 'CONSTRUCCION DE APARATOS Y ACCESORIOS ELÉCTRICOS DE USO DOMÉSTICO', category: 'Actividad Económica' },
+            { code: '18304', description: 'CONSTRUCCION DE APARATOS Y SUMINISTROS ELÉCTRICOS ,N.E.P.', category: 'Actividad Económica' },
+            { code: '18401', description: 'CONSTRUCIIONES NAVALES Y REPARACIONES DE BARCOS', category: 'Actividad Económica' },
+            { code: '18402', description: 'CONSTRUCCION DE EQUIPO FERROVIARIO', category: 'Actividad Económica' },
+            { code: '18403', description: 'FABRICACION DE VEHICULOS - AUTOMOVILES', category: 'Actividad Económica' },
+            { code: '18404', description: 'FABRICACION DE MOTOCICLETAS Y BICICLETAS', category: 'Actividad Económica' },
+            { code: '18405', description: 'FABRICACION DE AERONAVES', category: 'Actividad Económica' },
+            { code: '18406', description: 'CONSTRUCCION DE MATERIAL DE TRANSPORTE N.E.P.', category: 'Actividad Económica' },
+            { code: '18501', description: 'FABRICACION DE EQUIPO PROFESIONAL Y CIENTIFICO, INSTRUMENTOS DE MEDIDA Y DE CONTROL N.E.P', category: 'Actividad Económica' },
+            { code: '18502', description: 'FABRICACION DE APARATOS FOTOGRÁFICOS É INSTRUMENTOS DE OPTICA', category: 'Actividad Económica' },
+            { code: '18503', description: 'FABRICACION DE RELOJES', category: 'Actividad Económica' },
+            { code: '19101', description: 'FABRICACION DE JOYAS Y ARTICULOS CONEXOS', category: 'Actividad Económica' },
+            { code: '19201', description: 'FABRICACION DE INSTRUMENTOS DE MUSICA', category: 'Actividad Económica' },
+            { code: '19301', description: 'FABRICACION DE ARTICULOS DE DEPORTE Y ATLETISMO', category: 'Actividad Económica' },
+            { code: '19401', description: 'INDUSTRIAS MANUFACTURERAS N.E.P.', category: 'Actividad Económica' },
+            { code: '20101', description: 'LUZ Y FUERZA ELÉCTRICA', category: 'Actividad Económica' },
+            { code: '20102', description: 'PRODUCCION Y DISTRIBUCION DE GAS', category: 'Actividad Económica' },
+            { code: '20103', description: 'SUMINISTRO DE VAPOR Y AGUA CALIENTE', category: 'Actividad Económica' },
+            { code: '20201', description: 'OBRAS HIDRAULICAS Y SUMINISTRO DE AGUA', category: 'Actividad Económica' },
+            { code: '21101', description: 'CONSTRUCCION', category: 'Actividad Económica' },
+            { code: '31101', description: 'CAFÉ EN GRANO', category: 'Actividad Económica' },
+            { code: '31102', description: 'CEREALES', category: 'Actividad Económica' },
+            { code: '31103', description: 'ESPECERIAS', category: 'Actividad Económica' },
+            { code: '31104', description: 'FRUTERIAS', category: 'Actividad Económica' },
+            { code: '31105', description: 'VERDULERIA', category: 'Actividad Económica' },
+            { code: '31106', description: 'MENESTRAS', category: 'Actividad Económica' },
+            { code: '31107', description: 'TUBÉRCULOS', category: 'Actividad Económica' },
+            { code: '31108', description: 'ACEITUNAS', category: 'Actividad Económica' },
+            { code: '31109', description: 'CACAO', category: 'Actividad Económica' },
+            { code: '31199', description: 'OTROS PRODUCTOS AGRICOLAS COMESTIBLES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '31201', description: 'ALGODON', category: 'Actividad Económica' },
+            { code: '31202', description: 'FLORERIA', category: 'Actividad Económica' },
+            { code: '31203', description: 'FORRAJES', category: 'Actividad Económica' },
+            { code: '31204', description: 'SEMILLAS Y PLANTAS', category: 'Actividad Económica' },
+            { code: '31205', description: 'TABACO EN RAMA', category: 'Actividad Económica' },
+            { code: '31206', description: 'COCA', category: 'Actividad Económica' },
+            { code: '31207', description: 'YERBA SECA PARA DIFERENTES USOS', category: 'Actividad Económica' },
+            { code: '31209', description: 'OTROS PRODUCTOS AGRICOLAS NO UTILIZADOS PARA EL CONSUMO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '31301', description: 'PRODUCTOS DE LA CAZA', category: 'Actividad Económica' },
+            { code: '31302', description: 'PECES ORNAMENTALES', category: 'Actividad Económica' },
+            { code: '31303', description: 'ANIMALES DE CARGA', category: 'Actividad Económica' },
+            { code: '31304', description: 'COCHINILLA', category: 'Actividad Económica' },
+            { code: '31305', description: 'ANIMALES DOMÉSTICOS', category: 'Actividad Económica' },
+            { code: '31399', description: 'OTROS ANIMALES NO UTILIZADOS EN LA ALIMENTACION Y NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '31401', description: 'AVICOLAS', category: 'Actividad Económica' },
+            { code: '31402', description: 'CARNICERIA', category: 'Actividad Económica' },
+            { code: '31403', description: 'GANADO EN PIE', category: 'Actividad Económica' },
+            { code: '31404', description: 'PESCADERIAS Y AFINES', category: 'Actividad Económica' },
+            { code: '31405', description: 'ANIMALES PEQUEÑOS', category: 'Actividad Económica' },
+            { code: '31499', description: 'OTROS ANIMALES VIVOS Y PRODUCTOS PECUARIOS UTILIZADOS EN LA ALIMENTACION Y NO CLASIFICADOS', category: 'Actividad Económica' },
+            { code: '32101', description: 'PLANTAS MEDICINALES', category: 'Actividad Económica' },
+            { code: '32102', description: 'TRONCOS PARA ASERRADERO', category: 'Actividad Económica' },
+            { code: '32103', description: 'COMERCIO DE MINERALES Y METALES', category: 'Actividad Económica' },
+            { code: '32199', description: 'OTROS PRODUCTOS EN ESTADO NATURAL NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '32201', description: 'CAUCHO', category: 'Actividad Económica' },
+            { code: '32202', description: 'PRODUCTOS PROVENIENTES DEL CULTIVO Y/O EXPLOTACION DE OTRAS ESPECIES VEGETALES: GERMEN DE TRIGO,', category: 'Actividad Económica' },
+            { code: '32299', description: 'OTROS PRODUCTOS DERIVADOS NO INDUSTRIALIZADOS,NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33101', description: 'CAFÉ DE TOSTADURIA', category: 'Actividad Económica' },
+            { code: '33102', description: 'CONFITERIA', category: 'Actividad Económica' },
+            { code: '33103', description: 'EMBUTIDOS', category: 'Actividad Económica' },
+            { code: '33104', description: 'HELADERIAS', category: 'Actividad Económica' },
+            { code: '33105', description: 'LECHERIA Y CREMERIA', category: 'Actividad Económica' },
+            { code: '33106', description: 'PANADERIA Y PASTELERIA', category: 'Actividad Económica' },
+            { code: '33107', description: 'TIENDA DE ABARROTES', category: 'Actividad Económica' },
+            { code: '33109', description: 'OTROS PRODUCTOS ALIMENTICIOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33110', description: 'MINIMARKET', category: 'Actividad Económica' },
+            { code: '33111', description: 'SUPERMERCADOS', category: 'Actividad Económica' },
+            { code: '33199', description: 'OTROS PRODUCTOS ALIMENTICIOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33201', description: 'NUTRIMENTOS', category: 'Actividad Económica' },
+            { code: '33299', description: 'OTROS PRODUCTOS ALIMENTICIOS PREPARADOS PARA ANIMALES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33301', description: 'LICORERIAS', category: 'Actividad Económica' },
+            { code: '33302', description: 'CIGARRERIA', category: 'Actividad Económica' },
+            { code: '33303', description: 'BEBIDAS REFRESCANTES', category: 'Actividad Económica' },
+            { code: '33399', description: 'OTROS ARTICULOS CONEXOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33401', description: 'ARTICULOS DE TOCADOR É HIGIENE PERSONAL', category: 'Actividad Económica' },
+            { code: '33402', description: 'FARMACIA, DROGUERIA O BOTICA', category: 'Actividad Económica' },
+            { code: '33403', description: 'PRODUCTOS VETERINARIOS', category: 'Actividad Económica' },
+            { code: '33499', description: 'OTROS PRODUCTOS FARMACÉUTICOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '33501', description: 'GAS PROPANO', category: 'Actividad Económica' },
+            { code: '33502', description: 'GRIFO', category: 'Actividad Económica' },
+            { code: '33503', description: 'CARBONERÍA', category: 'Actividad Económica' },
+            { code: '33504', description: 'LUBRICANTES', category: 'Actividad Económica' },
+            { code: '33505', description: 'RON DE QUEMAR', category: 'Actividad Económica' },
+            { code: '33599', description: 'OTROS COMBUSTIBLES, LUBRICANTES Y CONEXOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '34101', description: 'MERCERIA', category: 'Actividad Económica' },
+            { code: '34102', description: 'ZAPATERIAS', category: 'Actividad Económica' },
+            { code: '34103', description: 'PELETERIAS', category: 'Actividad Económica' },
+            { code: '34104', description: 'BAZAR', category: 'Actividad Económica' },
+            { code: '34105', description: 'SOMBRERERIA (SOMBREROS)', category: 'Actividad Económica' },
+            { code: '34106', description: 'TELAS Y TEJIDOS', category: 'Actividad Económica' },
+            { code: '34107', description: 'TRAJES DE BODA Y COMPROMISOS EN GENERAL Y ACCESORIOS', category: 'Actividad Económica' },
+            { code: '34108', description: 'ARTICULOS PARA EL ARREGLO PERSONAL', category: 'Actividad Económica' },
+            { code: '34199', description: 'OTRAS TELAS Y TEJIDOS, CONFECCIONES TEXTILES Y DE CUERO,PIELES Y ARTICULOS CONEXOS, NO CLASIFICADO', category: 'Actividad Económica' },
+            { code: '34201', description: 'APARATOS DOMÉSTICOS', category: 'Actividad Económica' },
+            { code: '34202', description: 'ALFOMBRAS,TAPICES,CORTINAS Y CONEXOS', category: 'Actividad Económica' },
+            { code: '34203', description: 'COLCHONERIA', category: 'Actividad Económica' },
+            { code: '34204', description: 'MUEBLERIA (MUEBLES PARA EL HOGAR)', category: 'Actividad Económica' },
+            { code: '34205', description: 'LENCERIA', category: 'Actividad Económica' },
+            { code: '34206', description: 'LOCERIA Y CRISTALERIA', category: 'Actividad Económica' },
+            { code: '34207', description: 'UTENSILIOS DE COCINA', category: 'Actividad Económica' },
+            { code: '34208', description: 'ARTICULOS PARA EL ARREGLO DEL HOGAR Y COMPLEMENTARIOS', category: 'Actividad Económica' },
+            { code: '34299', description: 'OTROS ARTICULOS PARA EL HOGAR NO CLASIFICADOS EN OTRA PARTE.', category: 'Actividad Económica' },
+            { code: '34301', description: 'LIBRERIA Y/O ARTICULOS DE ESCRITORIO', category: 'Actividad Económica' },
+            { code: '34302', description: 'REVISTAS Y PERIODICOS', category: 'Actividad Económica' },
+            { code: '34303', description: 'TARJETAS', category: 'Actividad Económica' },
+            { code: '34399', description: 'OTROS LIBROS, REVISTAS Y UTILES DE ESCRITORIO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '34401', description: 'ARTICULOS ARTESANALES', category: 'Actividad Económica' },
+            { code: '34402', description: 'ANTIGÜEDADES', category: 'Actividad Económica' },
+            { code: '34403', description: 'PLATERIA', category: 'Actividad Económica' },
+            { code: '34404', description: 'CASA DE REGALOS', category: 'Actividad Económica' },
+            { code: '34405', description: 'ARTICULOS RELIGIOSOS', category: 'Actividad Económica' },
+            { code: '34406', description: 'DISFRACES Y ARTICULOS PARA FIESTAS', category: 'Actividad Económica' },
+            { code: '34407', description: 'JOYERIA Y RELOJERIA', category: 'Actividad Económica' },
+            { code: '34408', description: 'CUADROS Y ESCULTURAS', category: 'Actividad Económica' },
+            { code: '34409', description: 'BRONCERIA', category: 'Actividad Económica' },
+            { code: '34410', description: 'ARTICULOS DE FILATELIA', category: 'Actividad Económica' },
+            { code: '34411', description: 'LÁMPARAS', category: 'Actividad Económica' },
+            { code: '34412', description: 'ARTICULOS DE FANTASIA', category: 'Actividad Económica' },
+            { code: '34413', description: 'ARTICULOS DE PIROTECNIA', category: 'Actividad Económica' },
+            { code: '34499', description: 'OTROS ARTICULOS Y DE LUJO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '34501', description: 'AUTOMOVILES', category: 'Actividad Económica' },
+            { code: '34502', description: 'BICICLETAS Y SIMILARES', category: 'Actividad Económica' },
+            { code: '34503', description: 'MOTOCICLETAS Y MOTONETAS', category: 'Actividad Económica' },
+            { code: '34599', description: 'OTROS AUTOMOVILES Y OTROS MEDIOS DE TRANSPORTE Y TRACCION PERSONAL NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '34601', description: 'INMUEBLES', category: 'Actividad Económica' },
+            { code: '34699', description: 'OTROS BIENES RAICES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '34701', description: 'OPTICAS', category: 'Actividad Económica' },
+            { code: '34702', description: 'ARMERIA', category: 'Actividad Económica' },
+            { code: '34703', description: 'ARTICULOS DEPORTIVOS', category: 'Actividad Económica' },
+            { code: '34704', description: 'CASA DE DISCOS', category: 'Actividad Económica' },
+            { code: '34705', description: 'EQUIPOS FOTOGRAFICOS Y DE PROYECCION', category: 'Actividad Económica' },
+            { code: '34706', description: 'INSTRUMENTOS MUSICALES', category: 'Actividad Económica' },
+            { code: '34707', description: 'JUGUETERIA', category: 'Actividad Económica' },
+            { code: '34708', description: 'MALETERIA', category: 'Actividad Económica' },
+            { code: '34709', description: 'CASA DE REMATES', category: 'Actividad Económica' },
+            { code: '34710', description: 'OBJETOS DE CUERO PARA ANIMALES DE TRACCION, TRANSPORTE O CARGA', category: 'Actividad Económica' },
+            { code: '34711', description: 'OBJETOS DE CUERO PARA TRANSPORTE DE ARTICULOS PERSONALES', category: 'Actividad Económica' },
+            { code: '34712', description: 'ARTICULOS DOMESTICOS DE PLASTICO Y ACRILICO', category: 'Actividad Económica' },
+            { code: '34713', description: 'HOJALATERIA', category: 'Actividad Económica' },
+            { code: '34799', description: 'OTROS ARTICULOS DIVERSOS DEUSO DURADERO NO CLASIFICADOS EN OTRAPARTE', category: 'Actividad Económica' },
+            { code: '35101', description: 'FERTILIZANTES Y PESTICIDAS', category: 'Actividad Económica' },
+            { code: '35199', description: 'OTROS FERTILIZANTES,PESTICIDAS Y OTROS INSUMOS PARA AGRICULTURA NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '35201', description: 'CUERO', category: 'Actividad Económica' },
+            { code: '35202', description: 'CHATARRA', category: 'Actividad Económica' },
+            { code: '35203', description: 'PRODUCTOS QUIMICOS INDUSTRIALES ESENCIALES', category: 'Actividad Económica' },
+            { code: '35204', description: 'PAPEL Y CARTON', category: 'Actividad Económica' },
+            { code: '35205', description: 'ALCOHOL HIDRATADO', category: 'Actividad Económica' },
+            { code: '35206', description: 'LEVADURA Y ESENCIAS', category: 'Actividad Económica' },
+            { code: '35207', description: 'LANA', category: 'Actividad Económica' },
+            { code: '35208', description: 'INSUMOS PARA LA INDUSTRIA DEL CALZADO', category: 'Actividad Económica' },
+            { code: '35209', description: 'MARROQUINES,HULES,PLASTICOS Y CAUCHOS SINTÉTICOS', category: 'Actividad Económica' },
+            { code: '35299', description: 'OTROS INSUMOS MANUFACTURADOS PARA LA INDUSTRIA DE TRANSFORMACION NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '35301', description: 'FERRETERIA', category: 'Actividad Económica' },
+            { code: '35302', description: 'CEMENTO,YESO Y CAL', category: 'Actividad Económica' },
+            { code: '35303', description: 'FIERRO Y ACERO EN VARILLAS,PLANCHAS Y TUBERIAS', category: 'Actividad Económica' },
+            { code: '35304', description: 'LADRILLOS', category: 'Actividad Económica' },
+            { code: '35305', description: 'MADERAS', category: 'Actividad Económica' },
+            { code: '35306', description: 'MARMOLERIA', category: 'Actividad Económica' },
+            { code: '35307', description: 'PINTURAS, BARNICES Y LACAS', category: 'Actividad Económica' },
+            { code: '35308', description: 'SANITARIOS, MOSAICOS, MAYOLICAS Y LOSETAS', category: 'Actividad Económica' },
+            { code: '35309', description: 'VIDRIERIA', category: 'Actividad Económica' },
+            { code: '35310', description: 'PRODUCTOS DE CANTERAS', category: 'Actividad Económica' },
+            { code: '35311', description: 'INSUMOS PARA CARPINTERIA METALICA', category: 'Actividad Económica' },
+            { code: '35399', description: 'OTROS INSUMOS MANUFACTURADOS USADOS PREFENTEMENTE PARA LA CONSTRUCCION NO CLASIFICADOS EN OTRA PAR', category: 'Actividad Económica' },
+            { code: '35401', description: 'REPUESTOS DE APARATOS DOMÉSTICOS', category: 'Actividad Económica' },
+            { code: '35402', description: 'REPUESTOS DE VEHICULOS AUTOMOTORES', category: 'Actividad Económica' },
+            { code: '35403', description: 'REPUESTOS DE MOTOS Y BICICLETAS', category: 'Actividad Económica' },
+            { code: '35404', description: 'REPUESTOS DE MAQUINARIA EN GENERAL', category: 'Actividad Económica' },
+            { code: '35405', description: 'OTROS REPUESTOS Y ACCESORIOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '36101', description: 'EQUIPOS DE SEGURIDAD E HIGIENE', category: 'Actividad Económica' },
+            { code: '36102', description: 'EQUIPOS PARA OFICINA', category: 'Actividad Económica' },
+            { code: '36103', description: 'MUEBLES PARA OFICINA', category: 'Actividad Económica' },
+            { code: '36104', description: 'MAQUINARIAS, IMPLEMENTOS,HERRAMIENTAS Y EQUIPOS PARA LA INDUSTRIA EN GENERAL, EXCEPTO 36105;36106;', category: 'Actividad Económica' },
+            { code: '36105', description: 'MAQUINARIAS,IMPLEMENTOS,HERRAMIENTAS Y EQUIPOS PARA LABORES AGROPECUARIAS', category: 'Actividad Económica' },
+            { code: '36106', description: 'MAQUINARIAS,IMPLEMENTOS,HERRAMIENTAS Y EQUIPOS PARA LABORES MINERAS Y TRABAJOS DE CONSTRUCCION', category: 'Actividad Económica' },
+            { code: '36107', description: 'MAQUINARIAS, IMPLEMENTOS,HERRAMIENTAS Y EQUIPOS PARA LABORES PESQUERAS', category: 'Actividad Económica' },
+            { code: '36199', description: 'OTRAS MAQUINARIAS, IMPLEMENTOS, HERRAMIENTAS Y EQUIPOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '36201', description: 'PARA COMERCIO', category: 'Actividad Económica' },
+            { code: '36202', description: 'PARA INGENIERIA', category: 'Actividad Económica' },
+            { code: '36203', description: 'PARA MEDICINA', category: 'Actividad Económica' },
+            { code: '36204', description: 'PARA SERVICIOS', category: 'Actividad Económica' },
+            { code: '36205', description: 'OTROS APARATOS DE MEDICION, PRECISION, PROCESAMIENTO Y DE FINES DIVERSOS NO CLASIFICADOS EN OTR', category: 'Actividad Económica' },
+            { code: '36301', description: 'CAMIONES,CAMIONETAS,FURGONETAS,OMNIBUS Y MICROBUSES', category: 'Actividad Económica' },
+            { code: '36302', description: 'CARGADORES,ELEVADORES Y ASCENSORES', category: 'Actividad Económica' },
+            { code: '36303', description: 'VEHICULOS DE TRANSPORTE ACUATICO', category: 'Actividad Económica' },
+            { code: '36399', description: 'OTROS VEHICULOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '37101', description: 'TIENDAS DE DEPARTAMENTOS,SUPERMERCADOS', category: 'Actividad Económica' },
+            { code: '37102', description: 'CAJAS', category: 'Actividad Económica' },
+            { code: '37103', description: 'BOLSAS', category: 'Actividad Económica' },
+            { code: '37104', description: 'BOTELLAS', category: 'Actividad Económica' },
+            { code: '37105', description: 'HIELO', category: 'Actividad Económica' },
+            { code: '37106', description: 'CHATARRA, DESPERDICIOS Y MATERIALES DE DESECHOS', category: 'Actividad Económica' },
+            { code: '37199', description: 'OTROS BIENES NO IDENTIFICADOS EN LOS GRUPOS ANTERIORES', category: 'Actividad Económica' },
+            { code: '41101', description: 'BAR, CANTINA', category: 'Actividad Económica' },
+            { code: '41102', description: 'CAFÉ, SALON DE TÉ', category: 'Actividad Económica' },
+            { code: '41103', description: 'CEBICHERIA', category: 'Actividad Económica' },
+            { code: '41104', description: 'CHIFA', category: 'Actividad Económica' },
+            { code: '41105', description: 'DULCERIA', category: 'Actividad Económica' },
+            { code: '41106', description: 'HELADERIA', category: 'Actividad Económica' },
+            { code: '41107', description: 'JUGUERIA', category: 'Actividad Económica' },
+            { code: '41108', description: 'PARRILLADA', category: 'Actividad Económica' },
+            { code: '41109', description: 'PICANTERIA', category: 'Actividad Económica' },
+            { code: '41110', description: 'POLLERIA', category: 'Actividad Económica' },
+            { code: '41111', description: 'RECREO', category: 'Actividad Económica' },
+            { code: '41112', description: 'RESTAURANTE', category: 'Actividad Económica' },
+            { code: '41113', description: 'PIZZERIA', category: 'Actividad Económica' },
+            { code: '41114', description: 'FUENTE DE SODA', category: 'Actividad Económica' },
+            { code: '41115', description: 'SANDWICHERIA', category: 'Actividad Económica' },
+            { code: '41116', description: 'SNACK BAR', category: 'Actividad Económica' },
+            { code: '41117', description: 'COMIDA AL PASO', category: 'Actividad Económica' },
+            { code: '41199', description: 'OTROS SERVICIOS DE ALIMENTACION Y BEBIDAS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '41201', description: 'ALQUILER DE TRAJES', category: 'Actividad Económica' },
+            { code: '41202', description: 'LAVANDERIA Y TINTORERIA', category: 'Actividad Económica' },
+            { code: '41203', description: 'LUSTRADO DE CALZADO', category: 'Actividad Económica' },
+            { code: '41204', description: 'REPARACIONES DE CALZADO', category: 'Actividad Económica' },
+            { code: '41205', description: 'TALLER DE SOMBRERIA', category: 'Actividad Económica' },
+            { code: '41206', description: 'SASTRERIA', category: 'Actividad Económica' },
+            { code: '41207', description: 'TALLER DE MODAS', category: 'Actividad Económica' },
+            { code: '41208', description: 'BORDADURIA', category: 'Actividad Económica' },
+            { code: '41209', description: 'REMALLADORA DE MEDIAS', category: 'Actividad Económica' },
+            { code: '41210', description: 'TALLER DE ESTAMPADOS Y PINTURAS DE TELAS', category: 'Actividad Económica' },
+            { code: '41211', description: 'RECREO', category: 'Actividad Económica' },
+            { code: '41213', description: 'PIZZERIA', category: 'Actividad Económica' },
+            { code: '41214', description: 'FUENTE DE SODA', category: 'Actividad Económica' },
+            { code: '41215', description: 'SANDWICHERIA', category: 'Actividad Económica' },
+            { code: '41216', description: 'SNACK BAR', category: 'Actividad Económica' },
+            { code: '41217', description: 'COMIDA AL PASO', category: 'Actividad Económica' },
+            { code: '41299', description: 'OTROS SERVICIOS DE VESTIMENTA NO CLASIFICADAS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '41301', description: 'ALQUILER DE INMUEBLES', category: 'Actividad Económica' },
+            { code: '41302', description: 'CENTROS VACACIONALES', category: 'Actividad Económica' },
+            { code: '41303', description: 'HOSTAL', category: 'Actividad Económica' },
+            { code: '41304', description: 'HOSTAL RESIDENCIAL', category: 'Actividad Económica' },
+            { code: '41305', description: 'HOTEL', category: 'Actividad Económica' },
+            { code: '41306', description: 'HOTEL RESIDENCIAL', category: 'Actividad Económica' },
+            { code: '41307', description: 'MOTELES', category: 'Actividad Económica' },
+            { code: '41308', description: 'PENSION', category: 'Actividad Económica' },
+            { code: '41309', description: 'MANTENIMIENTO Y LIMPIEZA DE INMUEBLES', category: 'Actividad Económica' },
+            { code: '41310', description: 'OTROS SERVICIOS DE VIVIENDA Y ALOJAMIENTO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '41401', description: 'BAÑOS PUBLICOS', category: 'Actividad Económica' },
+            { code: '41402', description: 'PEDICURIA Y/O MANICURIA', category: 'Actividad Económica' },
+            { code: '41403', description: 'PELUQUERIA', category: 'Actividad Económica' },
+            { code: '41404', description: 'SALONES DE BELLEZA Y PEINADOS', category: 'Actividad Económica' },
+            { code: '41405', description: 'BAÑOS SAUNA O BAÑOS TURCOS', category: 'Actividad Económica' },
+            { code: '41406', description: 'GIMNASIO', category: 'Actividad Económica' },
+            { code: '41499', description: 'OTROS SERVICIOS DE HIGIENE Y ESTÉTICA PERSONAL NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '41501', description: 'FUNERARIAS', category: 'Actividad Económica' },
+            { code: '41599', description: 'OTROS SERVICIOS PERSONALES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '42101', description: 'MECANOGRAFIADO,TIPEO DE DOCUMENTOS', category: 'Actividad Económica' },
+            { code: '42102', description: 'FOTOCOPIA DE DOCUMENTOS Y/O ENMICADOS', category: 'Actividad Económica' },
+            { code: '42103', description: 'FRAGMENTACION Y/O ENVASADO', category: 'Actividad Económica' },
+            { code: '42104', description: 'ROTULACION', category: 'Actividad Económica' },
+            { code: '42105', description: 'FUMIGACION', category: 'Actividad Económica' },
+            { code: '42106', description: 'AGENCIAS DE PUBLICIDAD', category: 'Actividad Económica' },
+            { code: '42107', description: 'PROCESAMIENTO ELECTRONICO DE DATOS', category: 'Actividad Económica' },
+            { code: '42108', description: 'ESTUDIO FOTOGRAFICO', category: 'Actividad Económica' },
+            { code: '42109', description: 'DECORACIONES', category: 'Actividad Económica' },
+            { code: '42110', description: 'INSTALACIONES INDUSTRIALES Y COMERCIALES', category: 'Actividad Económica' },
+            { code: '42111', description: 'GALVANOPLASTIA', category: 'Actividad Económica' },
+            { code: '42112', description: 'CERRAJERIA', category: 'Actividad Económica' },
+            { code: '42113', description: 'TORNERIA, PULIMENTO DE PIEZAS', category: 'Actividad Económica' },
+            { code: '42114', description: 'SERVICIOS TÉCNICOS DE ASESORIA É INVESTIGACION DE MERCADOS', category: 'Actividad Económica' },
+            { code: '42115', description: 'SERVICIOS GRAFICOS', category: 'Actividad Económica' },
+            { code: '42117', description: 'DIBUJOS Y PINTURA', category: 'Actividad Económica' },
+            { code: '42199', description: 'OTROS SERVICIOS TÉCNICOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '43101', description: 'ALINEAMIENTO DE DIRECCION Y/O BALANCEO DERUEDAS', category: 'Actividad Económica' },
+            { code: '43102', description: 'FACTORIA', category: 'Actividad Económica' },
+            { code: '43103', description: 'LAVADO Y ENGRASE DE VEHICULOS', category: 'Actividad Económica' },
+            { code: '43104', description: 'RECTIFICACION DE MOTORES', category: 'Actividad Económica' },
+            { code: '43105', description: 'TALLER DE REPARACIONES ELÉCTRICAS DE VEHICULOS AUTOMOTORES', category: 'Actividad Económica' },
+            { code: '43106', description: 'TALLER DE MECANICA AUTOMOTRIZ', category: 'Actividad Económica' },
+            { code: '43107', description: 'TALLER DE REPARACION DE BICICLETAS Y/O MOTOCICLETAS', category: 'Actividad Económica' },
+            { code: '43108', description: 'CARROCERIAS', category: 'Actividad Económica' },
+            { code: '43109', description: 'TALLER DE PLANCHADO Y PINTURA', category: 'Actividad Económica' },
+            { code: '43110', description: 'VULCANIZADORA Y/O REENCAUCHADORA', category: 'Actividad Económica' },
+            { code: '43111', description: 'TALLER DE BATERIAS', category: 'Actividad Económica' },
+            { code: '43112', description: 'REPARACION DE EMBARCAIONES PESQUERAS', category: 'Actividad Económica' },
+            { code: '43113', description: 'INSTALACION DE TUBOS DE ESCAPE Y AFINES', category: 'Actividad Económica' },
+            { code: '43199', description: 'OTROS SERVICIOS DE MECANICA AUTOMOTRIZ Y AFINES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '43201', description: 'TALLER DE SOLDADURA', category: 'Actividad Económica' },
+            { code: '43202', description: 'TALLLER DE REPARACION DE MAQUINARIA EN GENERAL', category: 'Actividad Económica' },
+            { code: '43203', description: 'INSTALACIONES ELÉCTRICAS Y/O ELETRONICAS', category: 'Actividad Económica' },
+            { code: '43204', description: 'OTROS SERVICIOS DE MECANICA EN GENERAL Y ELECTRICIDAD NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '43301', description: 'TALLER DE REPARACION DE APARATOS DOMÉSTICOS ELÉCTRICOS', category: 'Actividad Económica' },
+            { code: '43302', description: 'TALLER DE REPARACION DE APARATOS DE RADIO Y TELEVISIÓN', category: 'Actividad Económica' },
+            { code: '43303', description: 'TALLER DE REPARACION DE APARATOS DOMÉSTICOS MECANICOS', category: 'Actividad Económica' },
+            { code: '43304', description: 'CARPINTERIA METALICA', category: 'Actividad Económica' },
+            { code: '43305', description: 'CARPINTERIA Y/O EBANISTERÍA', category: 'Actividad Económica' },
+            { code: '43306', description: 'TAPICERIA', category: 'Actividad Económica' },
+            { code: '43307', description: 'GASFITERIA', category: 'Actividad Económica' },
+            { code: '43308', description: 'REPARACION DE CATRES Y SIMILARES', category: 'Actividad Económica' },
+            { code: '43399', description: 'REPARACION DE OTROS APARATOS DOMÉSTICOS NO ESPECIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '43401', description: 'TALLER DE MECANICA DE PRECISION', category: 'Actividad Económica' },
+            { code: '43402', description: 'TALLER DE RELOJES', category: 'Actividad Económica' },
+            { code: '43403', description: 'TALLER DE REPARACION DE JOYAS', category: 'Actividad Económica' },
+            { code: '43499', description: 'OTROS SERVICIOS DE MECANICA FINA NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '44101', description: 'TRANSPORTE FERROVIARIO', category: 'Actividad Económica' },
+            { code: '44102', description: 'TRANSPORTE URBANO, SUBURBANO ¿ INTERURBANO DE PASAJEROS POR CARRETERA', category: 'Actividad Económica' },
+            { code: '44103', description: 'OTROS SERVICIOS TERRESTRES DE TRANSPORTE DE PASAJEROS', category: 'Actividad Económica' },
+            { code: '44104', description: 'TRANSPORTE DE CARGA POR CARRETERA', category: 'Actividad Económica' },
+            { code: '44105', description: 'TRANSPORTE POR OLEODUCTOS O GASEODUCTOS', category: 'Actividad Económica' },
+            { code: '44106', description: 'SERVICIOS RELACIONADOS CON EL TRANSPORTE TERRESTRE', category: 'Actividad Económica' },
+            { code: '44107', description: 'SILOS', category: 'Actividad Económica' },
+            { code: '44199', description: 'OTROS SERVICIOS DE TRANSPORTE TERRESTRE NO ESPECIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '44201', description: 'TRANSPORTE OCEANICO O DE CABOTAJE', category: 'Actividad Económica' },
+            { code: '44202', description: 'TRANSPORTE POR VIAS DE NAVEGACION INTERIOR', category: 'Actividad Económica' },
+            { code: '44203', description: 'ESTIBADORES', category: 'Actividad Económica' },
+            { code: '44204', description: 'SERVICIOS RELACIONADOS CON EL TRANSPORTE POR AGUA', category: 'Actividad Económica' },
+            { code: '44299', description: 'OTROS SERVICIOS DE TRANSPORTE AÉREO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '44301', description: 'EMPRESAS DE TRANSPORTE AÉREO', category: 'Actividad Económica' },
+            { code: '44302', description: 'SERVICIOS RELACIONADOS CON EL TRANSPORTE AÉREO', category: 'Actividad Económica' },
+            { code: '44303', description: 'CORREO', category: 'Actividad Económica' },
+            { code: '44399', description: 'OTROS SERVICIOS DE TRANSPORTE AÉREO', category: 'Actividad Económica' },
+            { code: '44401', description: 'SERVICIOS RELACIONADOS CON EL TRANSPORTE', category: 'Actividad Económica' },
+            { code: '44402', description: 'DEPOSITO Y ALMACENAMIENTO', category: 'Actividad Económica' },
+            { code: '44499', description: 'OTROS SERVICIOS CONEXOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '44501', description: 'COMUNICACIONES', category: 'Actividad Económica' },
+            { code: '44502', description: 'OTROS SERVICIOS CONEXOS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '44503', description: 'INTERNET', category: 'Actividad Económica' },
+            { code: '44504', description: 'LOCUTORIO', category: 'Actividad Económica' },
+            { code: '45101', description: 'BANCO', category: 'Actividad Económica' },
+            { code: '45102', description: 'AGENCIA BANCARIA', category: 'Actividad Económica' },
+            { code: '45103', description: 'CAJA DE AHORRO', category: 'Actividad Económica' },
+            { code: '45104', description: 'MUTUAL', category: 'Actividad Económica' },
+            { code: '45105', description: 'COOPERATIVA DE CREDITO', category: 'Actividad Económica' },
+            { code: '45106', description: 'CASA DE PRESTAMOS', category: 'Actividad Económica' },
+            { code: '45199', description: 'OTRAS INSTITUCIONES MONETARIAS NO CLASIFICADAS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '45201', description: 'FINANCIERAS', category: 'Actividad Económica' },
+            { code: '45202', description: 'BOLSA DE VALORES', category: 'Actividad Económica' },
+            { code: '45203', description: 'AGENCIAS CAMBIARIAS', category: 'Actividad Económica' },
+            { code: '45204', description: 'COMPAÑIAS DE PATENTES Y LICENCIAS', category: 'Actividad Económica' },
+            { code: '45205', description: 'SERVICIOS FINANCIEROS', category: 'Actividad Económica' },
+            { code: '45299', description: 'OTROS SERVICIOS DE ESTABLECIMIENTOS FINANCIEROS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '45301', description: 'SEGUROS', category: 'Actividad Económica' },
+            { code: '45399', description: 'OTROS SERVICIOS DE SEGUROS NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '45401', description: 'SEVICIOS JURIDICOS', category: 'Actividad Económica' },
+            { code: '45402', description: 'SERVICIOS DE CONTABILIDAD,AUDITORIA Y TENEDURIA DE LIBROS', category: 'Actividad Económica' },
+            { code: '45403', description: 'SERVICIOS DE ELABORACION DE DATOS Y DE TABULACION', category: 'Actividad Económica' },
+            { code: '45404', description: 'SERVICIOS TÉCNICOS Y ARQUITECTONICOS', category: 'Actividad Económica' },
+            { code: '45405', description: 'SERVICIOS DE PUBLICIDAD', category: 'Actividad Económica' },
+            { code: '45406', description: 'AGENCIA COMISIONISTA (REPRESENTACIONES)', category: 'Actividad Económica' },
+            { code: '45407', description: 'COBRANZAS Y/O MENSAJES', category: 'Actividad Económica' },
+            { code: '45408', description: 'AGENCIA DE EMPLEOS', category: 'Actividad Económica' },
+            { code: '45409', description: 'AGENCIAS DE TRAMITES', category: 'Actividad Económica' },
+            { code: '45499', description: 'SERVICIOS PRESTADOS A LAS EMPRESAS,N.E.P., EXCEPTUANDO EL ALQUILER Y ARRENDAMIENTO DE MAQUINARIA', category: 'Actividad Económica' },
+            { code: '45501', description: 'ALQUILER Y ARRENDAMIENTO DE MAQUINARIA Y EQUIPO', category: 'Actividad Económica' },
+            { code: '45599', description: 'OTROS SERVICIOS DE ALQUILER Y ARRENDAMIENTO DE MAQUINARIA Y EQUIPO NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '46101', description: 'SERVICIOS DE SANEAMIENTO Y SIMILARES', category: 'Actividad Económica' },
+            { code: '46102', description: 'OTROS SERVICIOS DE SANEAMIENTO Y SIMILARES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '46201', description: 'SERVICIOS MÉDICOS Y ODONTOLOGICOS Y OTROS SERVICIOS DE SANIDAD', category: 'Actividad Económica' },
+            { code: '46202', description: 'SERVICIOS DE VETERINARIA', category: 'Actividad Económica' },
+            { code: '46203', description: 'ASOCIACIONES COMERCIALES,PROFESIONALES Y LABORALES', category: 'Actividad Económica' },
+            { code: '46204', description: 'ESTUDIO JURIDICO PERSONAL', category: 'Actividad Económica' },
+            { code: '46205', description: 'ASISTENCIA SOCIAL', category: 'Actividad Económica' },
+            { code: '46299', description: 'OTROS SERVICIOS SOCIALES Y COMUNALES NO CLASIFICADOS EN OTRA PARTE', category: 'Actividad Económica' },
+            { code: '46301', description: 'PRODUCCION DE PELICULAS CINEMATOGRAFICAS', category: 'Actividad Económica' },
+            { code: '46302', description: 'DISTRIBUCION Y EXHIBICION DE PELICULAS CINEMATOGRAFICAS', category: 'Actividad Económica' },
+            { code: '46303', description: 'EMISIONES DE RADIO Y TELEVISION', category: 'Actividad Económica' },
+            { code: '46304', description: 'PRODUCTORES TEATRALES Y SERVICIOS DE ESPARCIMIENTO', category: 'Actividad Económica' },
+            { code: '46305', description: 'AUTORES,COMPOSITORES Y OTROS ARTISTAS INDEPENDIENTES', category: 'Actividad Económica' },
+            { code: '46306', description: 'BIBLIOTECAS,MUSEOS,JARDINES BOTÁNICOS Y ZOOLOGICOS Y OTROS SERVICIOS CULTURALES', category: 'Actividad Económica' },
+            { code: '46307', description: 'SERVICIOS DE DIVERSION Y ESPARCIMIENTO', category: 'Actividad Económica' },
+            { code: '46308', description: 'ALQUILER DE APARATOS E INSTRUMENTOS MUSICALES', category: 'Actividad Económica' },
+            { code: '46309', description: 'CENTROS DE COMPETENCIAS Y/O APUESTAS', category: 'Actividad Económica' },
+            { code: '46310', description: 'CENTROS NOCTURNOS', category: 'Actividad Económica' },
+            { code: '46311', description: 'CABARET', category: 'Actividad Económica' },
+            { code: '46312', description: 'DISCOTECA', category: 'Actividad Económica' },
+            { code: '46313', description: 'BOITE', category: 'Actividad Económica' },
+            { code: '46314', description: 'COLISEOS', category: 'Actividad Económica' },
+            { code: '46315', description: 'SALON DE JUEGOS', category: 'Actividad Económica' },
+            { code: '46316', description: 'SERVICIOS PARA FIESTAS', category: 'Actividad Económica' },
+            { code: '46317', description: 'CAFÉ-TEATROS', category: 'Actividad Económica' },
+            { code: '46318', description: 'PEÑA CRIOLLA', category: 'Actividad Económica' },
+            { code: '46319', description: 'CASAS DE CITA', category: 'Actividad Económica' },
+            { code: '46320', description: 'PROSTÍBULOS', category: 'Actividad Económica' },
+            { code: '46322', description: 'ALQUILER DE VIDEOS (V.H.S.)', category: 'Actividad Económica' },
+            { code: '46323', description: 'VIDEOS JUEGOS (NINTENDO - PLAY STATION)', category: 'Actividad Económica' },
+            { code: '46324', description: 'VIDEO PUB', category: 'Actividad Económica' },
+            { code: '46327', description: 'PUB', category: 'Actividad Económica' },
+            { code: '46330', description: 'TALLER ARTES PLASTICAS', category: 'Actividad Económica' },
+            { code: '46399', description: 'OTROS SERVICIOS DE DIVERSION,ESPARCIMIENTO,RECREACIONALES Y CULTURALE CULTURALES NO CLASIFICADOS E', category: 'Actividad Económica' },
+            { code: '46400', description: 'EDUCACION', category: 'Actividad Económica' },
+            { code: '90001', description: 'INDUSTRIA', category: 'Actividad Económica' },
+        ];
+
+
+        // --- Lógica de la Aplicación ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const searchFilter = document.getElementById('searchFilter');
+            const tableBody = document.getElementById('dataTableBody');
+            const resultsInfo = document.getElementById('results-info');
+
+            const renderTable = (data) => {
+                tableBody.innerHTML = ''; // Limpiar la tabla
+                
+                if (data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="3" class="no-results">No se encontraron resultados para los filtros aplicados.</td></tr>`;
+                    resultsInfo.textContent = 'Mostrando 0 resultados.';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.code}</td>
+                        <td>${item.description}</td>
+                        <td>${item.category}</td>
+                    `;
+                    fragment.appendChild(row);
+                });
+                
+                tableBody.appendChild(fragment);
+                resultsInfo.textContent = `Mostrando ${data.length} de ${allData.length} registros.`;
+            };
+
+            const filterData = () => {
+                const category = categoryFilter.value;
+                const searchTerm = searchFilter.value.toLowerCase().trim();
+
+                let filteredData = allData;
+
+                // 1. Filtrar por categoría
+                if (category !== 'all') {
+                    filteredData = filteredData.filter(item => item.category === category);
+                }
+
+                // 2. Filtrar por término de búsqueda
+                if (searchTerm) {
+                    filteredData = filteredData.filter(item => 
+                        item.description.toLowerCase().includes(searchTerm) ||
+                        item.code.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                renderTable(filteredData);
+            };
+
+            // Event Listeners para los filtros
+            categoryFilter.addEventListener('change', filterData);
+            searchFilter.addEventListener('input', filterData);
+
+            // Renderizar la tabla inicial
+            renderTable(allData);
+        });
+
+    </script>
+</body>
+</html>
